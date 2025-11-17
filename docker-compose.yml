@@ -1,0 +1,16 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  caiena-app:
+    # O ponto indica que ele deve construir a imagem usando o Dockerfile neste diretório
+    build: .
+    # Mapeia a porta 5000 da sua máquina para a porta 8000 do container
+    # (A porta 8000 é usada pelo Gunicorn conforme definido no Dockerfile)
+    ports:
+      - "5000:8000"
+    # Carrega as variáveis de ambiente do seu arquivo .env
+    env_file:
+      - .env
+    # Reinicia o container se ele falhar
+    restart: always
