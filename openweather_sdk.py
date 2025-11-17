@@ -97,6 +97,39 @@ def get_5_days_forecast(lat: float, lon: float) -> dict or None:
         print(f"Ocorreu um erro inesperado no Forecast: {e}")
         return None
     
+def format_weather_message(city_name: str, forecast_data: dict) -> str:
+    """
+    formatar os dados de previsão na mensagem padronizada.
+    
+    Padrão: 34°C e nublado em <cidade> em 12/12. Média para os próximos dias: 32°C em 13/12, 
+    25°C em 14/12, 29°C em 15/12, 33°C em 16/12 e 28°C em 16/12.
+    """
+    
+    current_temp = forecast_data['current_temp']
+    current_desc = forecast_data['current_description']
+    current_date = forecast_data['current_date']
+    forecasts = forecast_data['forecast_days']
+    
+    current_summary = (
+        f"{current_temp}°C e {current_desc} em {city_name} em {current_date}. "
+        f"Média para os próximos dias: "
+    )
+    
+    forecast_parts = []
+    
+    for i, day in enumerate(forecasts):
+        temp = day['temp']
+        date = day['date']
+        
+        if i == len(forecasts) - 1:
+            part = f"e {temp}°C em {date}"
+        else:
+            part = f"{temp}°C em {date}"
+            
+        forecast_parts.append(part)
+
+    return current_summary + ", ".join(forecast_parts)
+
 if __name__ == "__main__":
     test_city = "São Paulo,BR"
     print(f"--- Testando SDK para {test_city} ---")
