@@ -16,10 +16,11 @@ try:
     response = requests.get(GEOCODING_URL, params=params)
     response.raise_for_status()
     geo_data = response.json()
-
-    # Processa o resultado
     if geo_data:
-        print(geo_data)
+        # print(geo_data)
+        city_data = geo_data[0]
+        print(city_data['lat'])
+        print(city_data['lon'])
     else:
       print("Não encontrado")
 except requests.exceptions.RequestException as e:
