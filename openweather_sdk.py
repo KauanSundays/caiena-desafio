@@ -15,13 +15,11 @@ def get_city_coordinates(city_query: str) -> dict or None:
             'limit': 1,
             'appid': OPENWEATHER_API_KEY
         }
-        print(params)
         
         response = requests.get(GEO_URL, params=params)
         response.raise_for_status()
 
         geo_data = response.json()
-        
         if geo_data:
             city_data = geo_data[0]
             return {

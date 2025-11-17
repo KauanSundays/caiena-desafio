@@ -1,27 +1,56 @@
+from flask import Flask, request, jsonify
 from openweather_sdk import get_city_coordinates, get_5_days_forecast, format_weather_message
 from github_service import post_comment_to_gist
 
-CITY_QUERY = "Rio de Janeiro,BR"
+app = Flask(__name__)
 
-coords = get_city_coordinates(CITY_QUERY)
+@app.route('/previsao', methods=['GET'])
+def get_weather_and_post_gist():
+    city_query = request.args.get('cidade')
+    
+    if not city_query:
+        return jsonify({
+            "status": "erro", 
+            "mensagem": "parametro cidade'é obrigatório. Ex: /previsao?cidade=Sao Paulo,BR"
+        }), 400
 
-print("-" * 40)
+    print(f"\n--- Processando requisição para: {city_query} ---")
+    
+    coords = get_city_coordinates(city_query)
+    
+    print("achou: ", coords)
 
-if coords:
-    print(f"Coordenadas encontradas para {coords.get('city_name')}:")
-    print(f"Latitude (lat): {coords['lat']}")
-    print(f"Longitude (lon): {coords['lon']}")
+    if not coords:
+        return jsonify({
+            "status": "erro", 
+            "mensagem": f"Não foi possível encontrar a cidade: {city_query}"
+        }), 404
     
     forecast_5_days = get_5_days_forecast(coords['lat'], coords['lon'])
     
-    if forecast_5_days:
-        final_message = format_weather_message(CITY_QUERY, forecast_5_days)
+    if not forecast_5_days:
+        return jsonify({
+            "status": "erro", 
+            "mensagem": f"Coordenadas encontradas, mas falha ao obter previsão para {city_query}"
+        }), 500
         
-        post_comment_to_gist(final_message)
+    final_message = format_weather_message(city_query, forecast_5_days)
+    
+    post_success = post_comment_to_gist(final_message)
+    
+    if post_success:
+        return jsonify({
+            "status": "sucesso",
+            "cidade_processada": city_query,
+            "mensagem_enviada": final_message,
+            "detalhes": "Comentário enviado com sucesso para o Gist."
+        }), 200
     else:
-        print("\nNão foi possível obter a previsão de 5 dias.")
-else:
-    print(f"Não foi possível obter coordenadas para {CITY_QUERY}. Verifique a chave da API e o nome da cidade.")
+        return jsonify({
+            "status": "erro",
+            "cidade_processada": city_query,
+            "mensagem": "Falha ao enviar comentário para o GitHub Gist. Verifique logs do servidor e .env."
+        }), 500
 
-
-print("-" * 40)
+if __name__ == '__main__':
+    app.run(debug=True)
