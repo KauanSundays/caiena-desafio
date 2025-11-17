@@ -18,8 +18,6 @@ def get_weather_and_post_gist():
     
     coords = get_city_coordinates(city_query)
     
-    print("achou: ", coords)
-
     if not coords:
         return jsonify({
             "status": "erro", 
