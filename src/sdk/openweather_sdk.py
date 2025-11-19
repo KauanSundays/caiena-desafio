@@ -1,8 +1,8 @@
 import os
 import requests
-from dotenv import load_dotenv
+# from dotenv import load_dotenv  <- REMOVIDO
 from datetime import datetime
-load_dotenv() 
+# load_dotenv() <- REMOVIDO
 
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY") 
 OPENWEATHER_URL_5_DAYS = os.getenv("OPENWEATHER_URL_5_DAYS") 
@@ -10,6 +10,11 @@ GEO_URL = os.getenv("GEO_API_URL")
 
 def get_city_coordinates(city_query: str) -> dict or None:
     try:
+        # Adiciona uma verificação de segurança para as variáveis de ambiente
+        if not OPENWEATHER_API_KEY or not GEO_URL:
+            print("Erro de Configuração: OPENWEATHER_API_KEY ou GEO_URL não definidos.")
+            return None
+            
         params = {
             'q': city_query,
             'limit': 1,
@@ -35,6 +40,10 @@ def get_city_coordinates(city_query: str) -> dict or None:
     
 def get_5_days_forecast(lat: float, lon: float) -> dict or None:
     try:
+        if not OPENWEATHER_API_KEY or not OPENWEATHER_URL_5_DAYS:
+            print("Erro de Configuração: OPENWEATHER_API_KEY ou URL de Forecast não definidos.")
+            return None
+            
         params = {
             'lat': lat,
             'lon': lon,
@@ -44,7 +53,6 @@ def get_5_days_forecast(lat: float, lon: float) -> dict or None:
         }
         
         response = requests.get(OPENWEATHER_URL_5_DAYS, params=params)
-        print(params)
         response.raise_for_status()
 
         data = response.json()
@@ -67,7 +75,7 @@ def get_5_days_forecast(lat: float, lon: float) -> dict or None:
             daily_temps[dt_txt].append(temp)
 
         forecast_days = []
-        # Ignora o dia atual, pega  5 próximas datas
+        # Ignora o dia atual, pega 5 próximas datas
         sorted_dates = sorted(daily_temps.keys())[1:6] 
 
         for date_str in sorted_dates:
@@ -129,6 +137,8 @@ def format_weather_message(city_name: str, forecast_data: dict) -> str:
     return current_summary + ", ".join(forecast_parts)
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
     test_city = "São Paulo,BR"
     print(f"--- Testando SDK para {test_city} ---")
     coords = get_city_coordinates(test_city)

@@ -1,15 +1,12 @@
 import os
-from dotenv import load_dotenv
 from github import Github
-
-load_dotenv()
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 TARGET_GIST_ID = os.getenv("GITHUB_GIST_ID")
 
 def post_comment_to_gist(comment_text: str) -> bool:
     if not GITHUB_TOKEN or not TARGET_GIST_ID:
-        print("Token ou Gist ID não configurados.")
+        print("Erro de Configuração: Token ou Gist ID não configurados.")
         return False
         
     try:
@@ -25,6 +22,8 @@ def post_comment_to_gist(comment_text: str) -> bool:
         return False
 
 if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
     test_message = f"teste comentario"
     post_comment_to_gist(test_message)
     print("----------------------------------------")

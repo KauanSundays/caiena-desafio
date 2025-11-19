@@ -1,6 +1,11 @@
 from flask import Flask, request, jsonify
-from openweather_sdk import get_city_coordinates, get_5_days_forecast, format_weather_message
-from github_service import post_comment_to_gist
+from dotenv import load_dotenv
+import os
+
+load_dotenv() 
+
+from src.sdk.openweather_sdk import get_city_coordinates, get_5_days_forecast, format_weather_message
+from src.services.github_service import post_comment_to_gist
 
 app = Flask(__name__)
 
@@ -51,4 +56,4 @@ def get_weather_and_post_gist():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

@@ -28,6 +28,7 @@ def client():
     with app.test_client() as client:
         yield client
 
+# Alvos dos patch corrigidos para apontar para as funções importadas no módulo 'app'
 @patch('app.get_city_coordinates', return_value={'lat': -23.55, 'lon': -46.63})
 @patch('app.get_5_days_forecast', return_value=MOCK_FORECAST_DATA)
 @patch('app.post_comment_to_gist', return_value=True)
